@@ -1,0 +1,44 @@
+package edu.upc.eetac.dsa.vmiranda.libros.api.model;
+
+public class Resena {
+
+	private int idresena;
+	private int idlibro;
+	private String creador;
+	private String datos;
+	private long fecha;
+	
+	public int getIdresena() {
+		return idresena;
+	}
+	public void setIdresena(int idresena) {
+		this.idresena = idresena;
+	}
+	public int getIdlibro() {
+		return idlibro;
+	}
+	public void setIdlibro(int idlibro) {
+		this.idlibro = idlibro;
+	}
+	public String getCreador() {
+		return creador;
+	}
+	public void setCreador(String creador) {
+		this.creador = creador;
+	}
+	public String getDatos() {
+		return datos;
+	}
+	public void setDatos(String datos) {
+		this.datos = datos;
+	}
+	public long getFecha() {
+		return fecha;
+	}
+	public void setFecha(long fecha) {
+		this.fecha = fecha;
+	}
+	
+	
+	
+}
