@@ -6,7 +6,7 @@ public class Resena {
 	private int idlibro;
 	private String creador;
 	private String datos;
-	private long fecha;
+	private String fecha;
 	
 	public int getIdresena() {
 		return idresena;
@@ -32,10 +32,10 @@ public class Resena {
 	public void setDatos(String datos) {
 		this.datos = datos;
 	}
-	public long getFecha() {
+	public String getFecha() {
 		return fecha;
 	}
-	public void setFecha(long fecha) {
+	public void setFecha(String fecha) {
 		this.fecha = fecha;
 	}
 	

@@ -31,8 +31,8 @@ insert into libros (titulo, autor, lengua ,edicion,fechaedicion,fechaimpresion, 
 insert into libros (titulo, autor, lengua ,edicion,fechaedicion,fechaimpresion, editorial) values ('titulo9', 'autor3', 'lengua3', "1", '10-12-00' ,'10-12-01','editorial1');
 
 
-insert into resena (idlibro, creador, datos) values ("1", 'test', 'un libro muy bonico');
-insert into resena (idlibro, creador, datos) values ("2", 'test', 'un libro muy bonico');
-insert into resena (idlibro, creador, datos) values ("3", 'test', 'un libro muy bonico');
-insert into resena (idlibro, creador, datos) values ("4", 'test', 'un libro muy bonico');
-insert into resena (idlibro, creador, datos) values ("5", 'test', 'un libro muy bonico');
+insert into resena (idlibro, creador, datos, fecha) values ("1", 'test', 'un libro muy bonico','10-12-19');
+insert into resena (idlibro, creador, datos, fecha) values ("2", 'test', 'un libro muy bonico','10-12-19');
+insert into resena (idlibro, creador, datos, fecha) values ("3", 'test', 'un libro muy bonico','10-12-19');
+insert into resena (idlibro, creador, datos, fecha) values ("4", 'test', 'un libro muy bonico','10-12-19');
+insert into resena (idlibro, creador, datos, fecha) values ("5", 'test', 'un libro muy bonico','10-12-19');

@@ -43,7 +43,6 @@ public class LibrosResource {
 	
 		try {
 			conn = ds.getConnection();
-			System.out.print ("en1" +idlibros);
 		} catch (SQLException e) {
 			throw new ServerErrorException("Could not connect to the database",
 					Response.Status.SERVICE_UNAVAILABLE);

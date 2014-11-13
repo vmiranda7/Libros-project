@@ -36,6 +36,6 @@ create table resena (
 	idlibro int not null,
 	creador varchar(40) not null,
 	datos varchar(500) not null,
-	fecha timestamp,
+	fecha varchar(20),
 	foreign key(creador) 	references usuarios(username) on delete cascade,
 	foreign key(idlibro) 	references libros(idlibro));
