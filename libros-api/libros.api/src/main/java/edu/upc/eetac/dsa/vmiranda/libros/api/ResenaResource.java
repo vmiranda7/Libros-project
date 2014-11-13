@@ -9,6 +9,7 @@ import java.sql.Statement;
 import javax.sql.DataSource;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
@@ -17,7 +18,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.ServerErrorException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 
 import edu.upc.eetac.dsa.vmiranda.libros.api.model.Resena;
 
@@ -25,6 +28,9 @@ import edu.upc.eetac.dsa.vmiranda.libros.api.model.Resena;
 public class ResenaResource {
 	private DataSource ds = DataSourceSPA.getInstance().getDataSource();
 
+	@Context
+	private SecurityContext security;
+	
 	private String GET_RESENA_BY_ID_QUERY = "select * from resena where idresena=?";
 
 	@GET
@@ -71,12 +77,22 @@ public class ResenaResource {
 		return resena;
 	}
 
+	
+	private void validateUser(int idresena) {
+		Resena resena = getResenaFromDatabase(idresena);
+		String creador = resena.getCreador();
+		if (!security.getUserPrincipal().getName().equals(creador))
+			throw new ForbiddenException(
+					"You are not allowed to modify this resena.");
+	}
+	
+	
 	private String DELETE_RESENA_QUERY = "DELETE  FROM resena where idresena=?";
 
 	@DELETE
 	@Path("/{idresena}")
 	public void deleteResena(@PathParam("idresena") int idresena) {
-		// validateUser(stingid);
+		validateUser(idresena);
 		Connection conn = null;
 		try {
 			conn = ds.getConnection();
@@ -149,7 +165,9 @@ public class ResenaResource {
 		return resena;
 	}
 	
-private String INSERT_RESENA_QUERY="insert into resena (idlibro, creador, datos, fecha) values (?,?,?,?)";  
+private String INSERT_RESENA_QUERY="insert into resena (idlibro, creador, datos, fecha) values (?,?,?,?)";
+
+private String GET_ROL_QUERY = "select rolename from user_roles where username=?";
 	
 	@POST
 	@Consumes(MediaType.LIBRO_API_RESENA)
@@ -205,7 +223,7 @@ private String INSERT_RESENA_QUERY="insert into resena (idlibro, creador, datos,
 	@Consumes(MediaType.LIBRO_API_RESENA)
 	@Produces(MediaType.LIBRO_API_RESENA)
 	public Resena updateResena(@PathParam("idresena") int idresena, Resena resena) {
-		//validateUser(stingid);
+		validateUser(idresena);
 		//validateUpdateSting(sting);
 		Connection conn = null;
 		try {

@@ -7,6 +7,6 @@
 		
 	<Realm className="org.apache.catalina.realm.DataSourceRealm"
 		dataSourceName="jdbc/librosdb" localDataSource="true" digest="MD5"
-		userTable="users" userNameCol="username" userCredCol="userpass"
+		userTable="usuarios" userNameCol="username" userCredCol="pasword"
 		userRoleTable="user_roles" roleNameCol="rolename" />
 </Context>
