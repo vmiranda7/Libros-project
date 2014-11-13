@@ -121,14 +121,17 @@ public class LibrosResource {
 	}
 	
 	private String GET_LIBROS_BY_AUTOR_FROM_LAST = "select l.* from libros l where autor LIKE ? and l.lastmodified > ? order by lastmodified";
-	private String GET_LIBROS_BY_AUTOR = "select l.* from libros l where autor LIKE ? and l.lastmodified < if null ( ?, now()) order by lastmodified desc limit ?"; 
-	
+	private String GET_LIBROS_BY_AUTOR = "select l.* from libros l where autor LIKE ? and l.lastmodified < ifnull ( ?, now()) order by lastmodified desc limit ?";
+
 	@GET
 	@Path("/search/autor/{nombreautor}")
 	@Produces(MediaType.LIBRO_API_LIBROS_COLLECTION)
-	public LibrosCollection getLibros(@PathParam("nombreautor") String nombreautor, @QueryParam("length") int length,
+	public LibrosCollection getLibros(
+			@PathParam("nombreautor") String nombreautor,
+			@QueryParam("length") int length,
 			@QueryParam("before") long before, @QueryParam("after") long after) {
 		LibrosCollection coleccionlibros = new LibrosCollection();
+		coleccionlibros.setPattern(nombreautor);
 
 		Connection conn = null;
 		try {
@@ -137,35 +140,31 @@ public class LibrosResource {
 			throw new ServerErrorException("Could not connect to the database",
 					Response.Status.SERVICE_UNAVAILABLE);
 		}
-		System.out.print(nombreautor);
 		PreparedStatement stmt = null;
 		try {
-			System.out.print(after);
 			boolean updateFromLast = after > 0;
 			stmt = updateFromLast ? conn
 					.prepareStatement(GET_LIBROS_BY_AUTOR_FROM_LAST) : conn
 					.prepareStatement(GET_LIBROS_BY_AUTOR);
-					stmt.setString(1, nombreautor);
-					
+			stmt.setString(1, '%' + nombreautor + '%');
+
 			if (updateFromLast) {
 				stmt.setTimestamp(2, new Timestamp(after));
-				
+
 			} else {
-				if (before > 0){
+				if (before > 0) {
 					stmt.setTimestamp(2, new Timestamp(before));
-				
-				}
-				else
+
+				} else
 					stmt.setTimestamp(2, null);
 				length = (length <= 0) ? 5 : length;
 				stmt.setInt(3, length);
 			}
-			
+
 			ResultSet rs = stmt.executeQuery();
-			
+
 			boolean first = true;
 			long oldestTimestamp = 0;
-			System.out.print(rs.next());
 			while (rs.next()) {
 				Libros libro = new Libros();
 				libro.setIdlibros(rs.getInt("idlibro"));
@@ -178,15 +177,95 @@ public class LibrosResource {
 				libro.setEditorial(rs.getString("editorial"));
 				libro.setLastmodified(rs.getTimestamp("lastmodified").getTime());
 				oldestTimestamp = rs.getTimestamp("lastmodified").getTime();
-				libro.setLastmodified(oldestTimestamp); 
+				libro.setLastmodified(oldestTimestamp);
 				if (first) {
 					first = false;
 					coleccionlibros.setNewestTimestamp(libro.getLastmodified());
 				}
 				coleccionlibros.addLibros(libro);
-			} 
-			coleccionlibros.setOldestTimestamp(oldestTimestamp);	
-			
+			}
+			coleccionlibros.setOldestTimestamp(oldestTimestamp);
+
+		} catch (SQLException e) {
+			throw new ServerErrorException(e.getMessage(),
+					Response.Status.INTERNAL_SERVER_ERROR);
+		} finally {
+			try {
+				if (stmt != null)
+					stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+			}
+		}
+
+		return coleccionlibros;
+	}
+	
+	private String GET_LIBROS_BY_TITULO_FROM_LAST = "select l.* from libros l where titulo LIKE ? and l.lastmodified > ? order by lastmodified";
+	private String GET_LIBROS_BY_TITULO = "select l.* from libros l where titulo LIKE ? and l.lastmodified < ifnull ( ?, now()) order by lastmodified desc limit ?";
+
+	@GET
+	@Path("/search/titulo/{titulo}")
+	@Produces(MediaType.LIBRO_API_LIBROS_COLLECTION)
+	public LibrosCollection getLibrostitulo(@PathParam("titulo") String titulo,
+			@QueryParam("length") int length,
+			@QueryParam("before") long before, @QueryParam("after") long after) {
+		LibrosCollection coleccionlibros = new LibrosCollection();
+		coleccionlibros.setPattern(titulo);
+
+		Connection conn = null;
+		try {
+			conn = ds.getConnection();
+		} catch (SQLException e) {
+			throw new ServerErrorException("Could not connect to the database",
+					Response.Status.SERVICE_UNAVAILABLE);
+		}
+		PreparedStatement stmt = null;
+		try {
+			boolean updateFromLast = after > 0;
+			stmt = updateFromLast ? conn
+					.prepareStatement(GET_LIBROS_BY_TITULO_FROM_LAST) : conn
+					.prepareStatement(GET_LIBROS_BY_TITULO);
+			stmt.setString(1, '%' + titulo + '%');
+
+			if (updateFromLast) {
+				stmt.setTimestamp(2, new Timestamp(after));
+
+			} else {
+				if (before > 0) {
+					stmt.setTimestamp(2, new Timestamp(before));
+
+				} else
+					stmt.setTimestamp(2, null);
+				length = (length <= 0) ? 5 : length;
+				stmt.setInt(3, length);
+			}
+
+			ResultSet rs = stmt.executeQuery();
+
+			boolean first = true;
+			long oldestTimestamp = 0;
+			while (rs.next()) {
+				Libros libro = new Libros();
+				libro.setIdlibros(rs.getInt("idlibro"));
+				libro.setTitulo(rs.getString("titulo"));
+				libro.setAutor(rs.getString("autor"));
+				libro.setLengua(rs.getString("lengua"));
+				libro.setEdicion(rs.getString("edicion"));
+				libro.setFechaedicion(rs.getString("fechaedicion"));
+				libro.setFechaimpresion(rs.getString("fechaimpresion"));
+				libro.setEditorial(rs.getString("editorial"));
+				libro.setLastmodified(rs.getTimestamp("lastmodified").getTime());
+				oldestTimestamp = rs.getTimestamp("lastmodified").getTime();
+				libro.setLastmodified(oldestTimestamp);
+				if (first) {
+					first = false;
+					coleccionlibros.setNewestTimestamp(libro.getLastmodified());
+				}
+				coleccionlibros.addLibros(libro);
+			}
+			coleccionlibros.setOldestTimestamp(oldestTimestamp);
+
 		} catch (SQLException e) {
 			throw new ServerErrorException(e.getMessage(),
 					Response.Status.INTERNAL_SERVER_ERROR);
